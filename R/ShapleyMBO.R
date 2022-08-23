@@ -1,7 +1,10 @@
 source("R/utils_ShapleyMBO.R")
+source("R/utils_ShapleyMBO_racb.R")
+
 source("R/ShapleyAf.R")
 source("R/ShapleyMean.R")
 source("R/ShapleySe.R")
+source("R/ShapleyNoise.R")
 source("R/PredictorAf.R")
 source("R/utils_PredictorAf.R")
 ###################################################### 
@@ -36,7 +39,8 @@ ShapleyMBO = function(res.mbo,
                       iter.interest = NULL, # explain instance proposed in iter.interest
                       sample.size = 100,
                       contribution = FALSE,
-                      seed = 1) {
+                      seed = 1,
+                      noise_proxy_fun) {
   # Input checking before extracting infos from MBO object
   checkmate::assertClass(res.mbo, classes = c("MBOSingleObjResult", "MBOResult"))
   
@@ -52,7 +56,11 @@ ShapleyMBO = function(res.mbo,
   ps.ids = ParamHelpers::getParamIds(ps.mbo, repeated = TRUE, with.nr = TRUE)
   y.name.mbo = ctrl.mbo$y.name
   infill.mbo = ctrl.mbo$infill.crit$id
-  if(infill.mbo == "cb") cb.lambda = ctrl.mbo$infill.crit$params$cb.lambda
+  if(infill.mbo == "cb") lambda = ctrl.mbo$infill.crit$params$cb.lambda
+  if(infill.mbo == "racb") {
+    alpha = ctrl.mbo$infill.crit$params$cb.alpha
+    lambda = ctrl.mbo$infill.crit$params$cb.lambda
+  } 
   # Numeric
   # stored are the stored models in the process, not every iteration has a stored model
   stored = sort(as.integer(names(res.mbo$models)))
@@ -62,6 +70,9 @@ ShapleyMBO = function(res.mbo,
   # Tables
   if(infill.mbo == "cb"){
     props = opdf[which(opdf$dob != 0), c(ps.ids, infill.mbo, "se", "mean"), drop = FALSE]
+  }
+  if(infill.mbo == "racb"){
+    props = opdf[which(opdf$dob != 0), c(ps.ids, infill.mbo, "se", "mean", "noise"), drop = FALSE]
   } else {
     props = opdf[which(opdf$dob != 0), c(ps.ids, infill.mbo), drop = FALSE]
   }
@@ -75,10 +86,14 @@ ShapleyMBO = function(res.mbo,
   if (ctrl.mbo$minimize == FALSE) 
     stop("ShapleyMBO not tested yet for Max problemes")
   # stops if infill is not one of the seven built-in infill in mlrMBO
-  if (!(infill.mbo %in% c("mean", "se", "ei", "cb", "eqi", "aei", "adacb", "uacb"))) 
-    stop("ShapleyMBO only implemented for the seven built-in single obj. infill crits")
+  if (!(infill.mbo %in% c("mean", "se", "ei", "cb", "eqi", "aei", "adacb", "uacb", "racb"))) 
+    stop("ShapleyMBO only implemented for built-in single obj. infill crits")
   if (infill.mbo != "cb")
     warning("ShapleyMBO implemented but not yet tested in detail for infill criteria other than cb")
+  # stops if no noise function is provided
+  assertFunction(noise_proxy_fun, null.ok = FALSE)
+  force(noise_proxy_fun)
+  
   # iter.interest
   checkmate::assertNumeric(iter.interest, lower = 1, upper = iters.mbo, any.missing = FALSE,
                            all.missing = FALSE, min.len = 1, max.len = iters.mbo, unique = TRUE,
@@ -94,8 +109,8 @@ ShapleyMBO = function(res.mbo,
   if(!(is.null(iter.interest))) stored = sort(stored[iter.interest]) # otherwise only selected ones
   # contribution - decomposition can be applied only with the CB
   checkmate::assertLogical(contribution, len = 1)
-  if(contribution == TRUE && infill.mbo != "cb") 
-    stop("Shapley Value decomposition only available for the Confidence Bound infill")
+  if(contribution == TRUE && !infill.mbo %in% c("cb", "uacb", "racb")) 
+    stop("Shapley Value decomposition only available for the Confidence Bound based infills")
   # seed
   checkmate::assertNumber(seed)
   
@@ -117,7 +132,6 @@ ShapleyMBO = function(res.mbo,
     res = dplyr::bind_rows(res, .id = "iter") %>% as.data.frame()
   }
   
-  if(contribution == TRUE && infill.mbo == "cb") {
     # MEAN contributions
     res.mean = lapply(
       stored,
@@ -152,13 +166,49 @@ ShapleyMBO = function(res.mbo,
     names(res.se) = stored
     
     # merge the Mean and Se results together and compute the SV of the CB
+    # in case of cb, we are done here
+    if(contribution == TRUE && infill.mbo == "cb") {
     res = mergeShapleyRes(res.mean, res.se, 
-                         lambda = cb.lambda,
+                         lambda = lambda,
                          max.mult = maximize.mult, 
                          sample.size.s = sample.size
           )
     res = as.data.frame(res)
   }
+  
+  # in case of racb, compute noise contribution as well
+  if(contribution == TRUE && infill.mbo == "racb") {
+   
+    # Noise contributions
+    # repeat the same procedure as for the Mean
+    res.noise = lapply(
+      stored,
+      function(x) {
+        set.seed(seed)
+        ShapleyNoise(
+          noise_proxy_fun = noise_proxy_fun,
+          x.interest.s = props[x, c(ps.ids, "noise"), drop = FALSE],
+          sample.size.s = sample.size,
+          ps.mbo = ps.mbo
+        )
+      }
+    )
+    # each list element is named with the corresponding iteration
+    names(res.se) = stored
+    
+
+    # merge the Mean, Se and Noise results together and compute the SV of the CB
+    res = mergeShapleyRes_racb(res.mean, res.se, res.noise,
+                          lambda = lambda,
+                          alpha = alpha,
+                          max.mult = maximize.mult, 
+                          sample.size.s = sample.size,
+                          infill_crit = infill.mbo
+    )
+    res = as.data.frame(res)
+  }
+  
+  
   
   return(res)
 }

@@ -76,6 +76,7 @@ makeMBOInfillCritUACB = function(cb.lambda = NULL,
       }
       
       model_imprecision <- model_imprecision_fun(points)
+      
       maximize.mult = if (control$minimize) 1 else -1
       p = predict(model, newdata = points)$data
       

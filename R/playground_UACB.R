@@ -18,10 +18,10 @@ obj_fun = function(x) {
 obj_fun = makeSingleObjectiveFunction(name = "noisy parable", 
                                       fn = obj_fun, has.simple.signature = TRUE,
                                       par.set = makeNumericParamSet(
-                                            len = 2, id = "x", 
-                                            lower = rep(0, 2), upper = rep(10, 2),
-                                            vector = TRUE)
-                                        )
+                                        len = 2, id = "x", 
+                                        lower = rep(0, 2), upper = rep(10, 2),
+                                        vector = TRUE)
+)
 
 
 # percent.noise = 0.05
@@ -94,6 +94,6 @@ ShapleyMBO(res.mbo = res_mbo, iter.interest = 2)
 #xplxpl(res_mbo)
 
 res_mbo$
-
-res_mbo
+  
+  res_mbo
 
