@@ -6,6 +6,7 @@ library(iml)
 source("R/makeMBOInfillCritUACB.R")
 source("R/initCrit.InfillCritUACB.R")
 source("R/ShapleyMBO.R")
+source("R/_Explore_Exploit_Measures/xplxpl-jr.R")
 
 fun = smoof::makeAlpine02Function(1)
 #fun = smoof::makeAlpine01Function(2)
@@ -61,7 +62,7 @@ ctrl <- makeMBOControl(final.method = "best.true.y", final.evals = 5)
 
 # set Control Argument of BO 
 ctrl = makeMBOControl(propose.points = 1L,
-                      store.model.at = 1:budget)
+                      store.model.at = 1:(budget+1))
 
 ctrl = setMBOControlTermination(ctrl, iters = budget)
 infill_crit = makeMBOInfillCritUACB(cb.lambda = 5, 
@@ -71,7 +72,7 @@ infill_crit = makeMBOInfillCritUACB(cb.lambda = 5,
                                     imprecision= 10, 
                                     noise_proxy_fun = var_function)
 
-ctrl = setMBOControlInfill(ctrl, crit = infill_crit, opt = "focussearch", 
+ctrl = setMBOControlInfill(ctrl, crit = infill_crit, opt = "focussearchSavepts", 
                            opt.focussearch.points = 200, opt.focussearch.maxit = 1)
 
 lrn = makeLearner("regr.km", covtype = "powexp", predict.type = "se", optim.method = "gen", 
@@ -83,8 +84,10 @@ lrn = setHyperPars(learner = lrn, nugget=Nuggets)
 
 res_mbo = mbo(fun = obj_fun, design = design, control = ctrl, learner = lrn)
 
-ShapleyMBO(res.mbo = res_mbo, iter.interest = 2)
+#ShapleyMBO(res.mbo = res_mbo, iter.interest = 2)
+xplxpl(res_mbo)
 
+res_mbo$
 
 res_mbo
 
