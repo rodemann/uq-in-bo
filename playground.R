@@ -2,6 +2,7 @@ library(mlrMBO)
 library(ggplot2)
 library(dplyr)
 library(smoof)
+library(iml)
 source("R/makeMBOInfillCritUACB.R")
 source("R/initCrit.InfillCritUACB.R")
 source("R/ShapleyMBO.R")
@@ -49,7 +50,7 @@ obj_fun = makeSingleObjectiveFunction(name = "noisy parable",
 autoplot(obj_fun, length.out = 400)
 
 
-budget = 25
+budget = 3
 init_design_size = 100
 parameter_set = getParamSet(obj_fun)
 
@@ -59,7 +60,9 @@ design <- generateDesign(n = init_design_size, par.set = parameter_set, fun = lh
 ctrl <- makeMBOControl(final.method = "best.true.y", final.evals = 5)
 
 # set Control Argument of BO 
-ctrl = makeMBOControl(propose.points = 1L)
+ctrl = makeMBOControl(propose.points = 1L,
+                      store.model.at = 1:budget)
+
 ctrl = setMBOControlTermination(ctrl, iters = budget)
 infill_crit = makeMBOInfillCritUACB(cb.lambda = 5, 
                                     cb.rho = 0,
@@ -80,7 +83,7 @@ lrn = setHyperPars(learner = lrn, nugget=Nuggets)
 
 res_mbo = mbo(fun = obj_fun, design = design, control = ctrl, learner = lrn)
 
-ShapleyMBO(res.mbo = res_mbo, iter.interest = 1)
+ShapleyMBO(res.mbo = res_mbo, iter.interest = 2)
 
 
 res_mbo

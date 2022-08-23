@@ -73,9 +73,9 @@ ShapleyMBO = function(res.mbo,
     stop("ShapleyMBO not implemented for Multipoint-Proposal or Multiobjective function")
   # stops for maximization problems - not tested yet for such cases
   if (ctrl.mbo$minimize == FALSE) 
-    stop("ShapleyMBO not tested yet for Max problmes")
+    stop("ShapleyMBO not tested yet for Max problemes")
   # stops if infill is not one of the seven built-in infill in mlrMBO
-  if (!(infill.mbo %in% c("mean", "se", "ei", "cb", "eqi", "aei", "adacb"))) 
+  if (!(infill.mbo %in% c("mean", "se", "ei", "cb", "eqi", "aei", "adacb", "uacb"))) 
     stop("ShapleyMBO only implemented for the seven built-in single obj. infill crits")
   if (infill.mbo != "cb")
     warning("ShapleyMBO implemented but not yet tested in detail for infill criteria other than cb")
