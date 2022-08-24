@@ -100,7 +100,7 @@ computePhiCb_racb = function(qR.mean, qR.se, qR.noise, names, lambda, alpha, max
   
   # computing the cb
   pred.with.k = max.mult * pred.with.k.mean - lambda * pred.with.k.se + alpha * pred.with.k.noise
-  pred.without.k =  max.mult * pred.without.k.mean - lambda * pred.without.k.se + alpha * pred.with.k.noise
+  pred.without.k =  max.mult * pred.without.k.mean - lambda * pred.without.k.se + alpha * pred.without.k.noise
   pred.diff = pred.with.k - pred.without.k
   
   cnames = colnames(pred.diff)
