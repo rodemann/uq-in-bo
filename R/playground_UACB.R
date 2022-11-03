@@ -8,20 +8,21 @@ source("R/initCrit.InfillCritUACB.R")
 source("R/ShapleyMBO.R")
 source("R/_Explore_Exploit_Measures/xplxpl-jr.R")
 
-fun = smoof::makeAlpine02Function(2)
+fun = smoof::makeAlpine02Function(1)
 #fun = smoof::makeAlpine01Function(2)
 
-var_function = function(x) 0.2*abs(x[1]-10)
+var_function = function(x) 0.2*abs(x-10)
 obj_fun = function(x) {
   rnorm(1, mean = fun(x), sd = var_function(x) %>% sqrt())
 }
+
 obj_fun = makeSingleObjectiveFunction(name = "noisy parable", 
                                       fn = obj_fun, has.simple.signature = TRUE,
                                       par.set = makeNumericParamSet(
-                                            len = 2, id = "x", 
-                                            lower = rep(0, 2), upper = rep(10, 2),
-                                            vector = TRUE)
-                                        )
+                                        len = 1, id = "x", 
+                                        lower = 0, upper = 10,
+                                        vector = TRUE)
+)
 
 
 # percent.noise = 0.05
@@ -53,7 +54,7 @@ obj_fun = makeSingleObjectiveFunction(name = "noisy parable",
 # )
 
 # visualize the function
-autoplot(obj_fun, length.out = 400)
+#autoplot(obj_fun, length.out = 400)
 
 
 budget = 3
@@ -89,11 +90,12 @@ lrn = setHyperPars(learner = lrn, nugget=Nuggets)
 
 res_mbo = mbo(fun = obj_fun, design = design, control = ctrl, learner = lrn)
 
+
 ShapleyMBO(res.mbo = res_mbo, iter.interest = 2)
 
 #xplxpl(res_mbo)
 
 res_mbo$
-
-res_mbo
+  
+  res_mbo
 

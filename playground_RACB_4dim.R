@@ -11,7 +11,7 @@ source("R/ShapleyMBO.R")
 source("R/_Explore_Exploit_Measures/xplxpl-jr.R")
 
 
-dim = 2
+dim = 4
 fun = smoof::makeAlpine02Function(dim)
 #fun = smoof::makeAlpine01Function(dim)
 fun = smoof::makeHyperEllipsoidFunction(dim)
@@ -27,10 +27,10 @@ obj_fun = function(x) {
 obj_fun = makeSingleObjectiveFunction(name = "noisy 2D parable", 
                                       fn = obj_fun, has.simple.signature = TRUE,
                                       par.set = makeNumericParamSet(
-                                            len = dim, id = "x", 
-                                            lower = rep(-15, dim), upper = rep(15, dim),
-                                            vector = TRUE)
-                                      )
+                                        len = dim, id = "x", 
+                                        lower = rep(-15, dim), upper = rep(15, dim),
+                                        vector = TRUE)
+)
 
 # test for one feature only --> envokes this error:
 #Only 1 feature was provided. The iml package is only useful and works for multiple features. 
@@ -38,11 +38,11 @@ obj_fun = makeSingleObjectiveFunction(name = "noisy 2D parable",
 # obj_fun = convertToMinimization(obj_fun)
 
 
-plot3D(obj_fun, length.out = 100)
-autoplot(obj_fun)
+#plot3D(obj_fun, length.out = 100)
+#autoplot(obj_fun)
 
-budget = 20
-init_design_size = 100
+budget = 40
+init_design_size = 40
 parameter_set = getParamSet(obj_fun)
 
 # same design for all approaches
@@ -82,16 +82,24 @@ shapleys <- select(shapleys, "iter","feature", "phi_mean_scaled", "phi_se_scaled
 
 
 
-x1_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% 2 == 1)
-x2_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% 2 == 0)
+x1_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% dim == 1)
+x2_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% dim == 2)
+x3_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% dim == 3)
+x4_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% dim == 0)
 
 shapleys$phi_mean_scaled[x1_ind] %>% mean
 shapleys$phi_mean_scaled[x2_ind] %>% mean
+shapleys$phi_mean_scaled[x3_ind] %>% mean
+shapleys$phi_mean_scaled[x4_ind] %>% mean
 
 shapleys$phi_se_scaled[x1_ind] %>% mean
 shapleys$phi_se_scaled[x2_ind] %>% mean
+shapleys$phi_se_scaled[x3_ind] %>% mean
+shapleys$phi_se_scaled[x4_ind] %>% mean
 
 shapleys$phi_noise_scaled[x1_ind] %>% mean
 shapleys$phi_noise_scaled[x2_ind] %>% mean
+shapleys$phi_noise_scaled[x3_ind] %>% mean
+shapleys$phi_noise_scaled[x4_ind] %>% mean
 
 shapleys
