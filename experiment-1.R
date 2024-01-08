@@ -27,6 +27,13 @@ source("R/ShapleyMBO.R")
 # first create ground truth by estimating hypersurrogate utility from data
 simulated_data_x <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_x.csv")
 simulated_data_pref <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_pref.csv")
+save(simulated_data_x, file = "data/simulated_data_x.csv")
+save(simulated_data_pref, file = "data/simulated_data_pref.csv")
+
+simulated_data_x <- read_csv("data/simulated_data_x.csv")
+simulated_data_pref <- read_csv("data/simulated_data_pref.csv")
+
+
 # clean redundancies
 simulated_data_pref = simulated_data_pref[,-1]
 simulated_data_x = simulated_data_x[,-1]
@@ -102,8 +109,8 @@ obj_fun = makeSingleObjectiveFunction(name = "exo utility",
 
 
 
-budget = 50
-init_design_size = 50
+budget = 20
+init_design_size = 20
 parameter_set = getParamSet(obj_fun)
 
 
@@ -134,7 +141,7 @@ plot(design$x2, y)
 
 ####
 ## agent simulation 
-init_design_size_agent = 200
+init_design_size_agent = 40
 design_agent <- generateDesign(n = init_design_size_agent, par.set = parameter_set, fun = lhs::maximinLHS)
 #ctrl <- makeMBOControl(final.method = "best.true.y", final.evals = 5)
 infill_crit_agent = makeMBOInfillCritCB(cb.lambda = 2)
