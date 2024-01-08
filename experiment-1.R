@@ -25,13 +25,16 @@ source("R/ShapleyMBO.R")
 #source("R/_Explore_Exploit_Measures/xplxpl-jr.R")
 
 # first create ground truth by estimating hypersurrogate utility from data
-simulated_data_x <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_x.csv")
-simulated_data_pref <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_pref.csv")
-save(simulated_data_x, file = "data/simulated_data_x.csv")
-save(simulated_data_pref, file = "data/simulated_data_pref.csv")
+# simulated_data_x <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_x.csv")
+# simulated_data_pref <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_pref.csv")
+# save(simulated_data_x, file = "data/simulated_data_x.csv")
+# save(simulated_data_pref, file = "data/simulated_data_pref.csv")
 
-simulated_data_x <- read_csv("data/simulated_data_x.csv")
-simulated_data_pref <- read_csv("data/simulated_data_pref.csv")
+load(file = "data/simulated_data_pref.Rds")
+load(file = "data/simulated_data_x.Rds")
+# 
+# simulated_data_x <- read_csv("data/simulated_data_x.csv")
+# simulated_data_pref <- read_csv("data/simulated_data_pref.csv")
 
 
 # clean redundancies
@@ -68,7 +71,7 @@ lrn_hyper = makeLearner("regr.randomForest", predict.type = "se")
 # # Evaluate the PDF of the multivariate normal distribution at the specified data points
 
 
-utilities = utility(simulated_data_x)
+#utilities = utility(simulated_data_x)
 #utilities = apply(simulated_data_x, 1, utility)
 utilities = 3*simulated_data_x$LOG - simulated_data_x$LIG^6
 
@@ -141,7 +144,7 @@ plot(design$x2, y)
 
 ####
 ## agent simulation 
-init_design_size_agent = 40
+init_design_size_agent = 200
 design_agent <- generateDesign(n = init_design_size_agent, par.set = parameter_set, fun = lhs::maximinLHS)
 #ctrl <- makeMBOControl(final.method = "best.true.y", final.evals = 5)
 infill_crit_agent = makeMBOInfillCritCB(cb.lambda = 2)
