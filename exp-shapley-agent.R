@@ -2,20 +2,6 @@
 #
 
 
-# initial 
-initial_iters_agent = 25
-ctrl_agent = makeMBOControl(propose.points = 1L, store.model.at = 1:initial_iters_agent)
-ctrl_agent = setMBOControlTermination(ctrl_agent, iters = initial_iters_agent)
-res_mbo_agent = mbo(fun = obj_fun, design = design_agent, control = ctrl_agent, learner = lrn_agent, show.info = F)
-shapleys = ShapleyMBO(res.mbo = res_mbo_agent, iter.interest = 1:initial_iters_agent, contribution = TRUE)
-
-x1_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% 2 == 1)
-x2_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% 2 == 0)
-mean_shapley_x1 = shapleys$phi_mean_scaled[x1_ind] %>% mean
-mean_shapley_x2 = shapleys$phi_mean_scaled[x2_ind] %>% mean
-
-shapley_ratio_agent = mean_shapley_x1 / mean_shapley_x2
-
 number_interventions = 0
 ## BO loop
 for (b in 1:budget) {

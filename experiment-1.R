@@ -25,14 +25,19 @@ source("R/ShapleyMBO.R")
 #source("R/_Explore_Exploit_Measures/xplxpl-jr.R")
 
 # first create ground truth by estimating hypersurrogate utility from data
-simulated_data_x <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_x.csv")
-simulated_data_pref <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_pref.csv")
-save(simulated_data_x, file = "data/simulated_data_x.csv")
-save(simulated_data_pref, file = "data/simulated_data_pref.csv")
+# simulated_data_x <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_x.csv")
+# simulated_data_pref <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_pref.csv")
+# 
+# save(simulated_data_pref, file = "data/simulated_data_x.Rds")
+# save(simulated_data_x, file = "data/simulated_data_pref.Rds")
+# 
+# simulated_data_x <- read_csv("data/simulated_data_x.csv")
+# simulated_data_pref <- read_csv("data/simulated_data_pref.csv")
 
-simulated_data_x <- read_csv("data/simulated_data_x.csv")
-simulated_data_pref <- read_csv("data/simulated_data_pref.csv")
+load(file = "data/simulated_data_pref.Rds")
+load(file = "data/simulated_data_x.Rds")
 
+write
 
 # clean redundancies
 simulated_data_pref = simulated_data_pref[,-1]
@@ -154,6 +159,29 @@ lrn_agent = makeLearner("regr.randomForest", predict.type = "se")
 ctrl_agent = setMBOControlTermination(ctrl_agent, iters = 1)
 
 
+
+
+
+
+
+# initial agent model
+initial_iters_agent = 200
+ctrl_agent = makeMBOControl(propose.points = 1L, store.model.at = 1:initial_iters_agent)
+ctrl_agent = setMBOControlTermination(ctrl_agent, iters = initial_iters_agent)
+res_mbo_agent = mbo(fun = obj_fun, design = design_agent, control = ctrl_agent, learner = lrn_agent, show.info = F)
+shapleys = ShapleyMBO(res.mbo = res_mbo_agent, iter.interest = 1:initial_iters_agent, contribution = TRUE)
+
+x1_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% 2 == 1)
+x2_ind = subset(1:nrow(shapleys), 1:nrow(shapleys) %% 2 == 0)
+mean_shapley_x1 = shapleys$phi_mean_scaled[x1_ind] %>% mean
+mean_shapley_x2 = shapleys$phi_mean_scaled[x2_ind] %>% mean
+
+shapley_ratio_agent = mean_shapley_x1 / mean_shapley_x2
+
+
+
+
+
 baseline_results = list()
 shapleyBO_results = list()
 baseline_opts = c()
@@ -176,6 +204,9 @@ print(i)
 
 baseline_opts %>% mean
 shapley_opts %>% mean
+
+
+
 
 
 ## possible extensions: different infill crits
