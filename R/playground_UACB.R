@@ -95,7 +95,4 @@ ShapleyMBO(res.mbo = res_mbo, iter.interest = 2)
 
 #xplxpl(res_mbo)
 
-res_mbo$
-  
-  res_mbo
 

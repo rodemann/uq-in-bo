@@ -111,8 +111,8 @@ computePhiCb_racb = function(qR.mean, qR.se, qR.noise, names, lambda, alpha, max
   )
   
   pred.diff = data.table::melt(pred.diff, variable.name = "class", value.name = "value", measure.vars = cnames)
-  res = pred.diff[, list("phi_cb" = mean(value), "phi.var_cb" = var(value)), by = c("feature", "class")] %>%
-    dplyr::select(feature, phi_cb, phi.var_cb)
+  res = pred.diff[, list("phi_racb" = mean(value), "phi.var_racb" = var(value)), by = c("feature", "class")] %>%
+    dplyr::select(feature, phi_racb, phi.var_racb)
   
   return(res)
 }

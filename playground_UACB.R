@@ -56,7 +56,7 @@ obj_fun = makeSingleObjectiveFunction(name = "noisy parable",
 #autoplot(obj_fun, length.out = 400)
 
 
-budget = 3
+budget = 10
 init_design_size = 10
 parameter_set = getParamSet(obj_fun)
 
@@ -76,11 +76,13 @@ infill_crit = makeMBOInfillCritUACB(cb.lambda = 5,
                                     base_kernel= "powexp", 
                                     imprecision= 10, 
                                     noise_proxy_fun = var_function)
+infill_crit = makeMBOInfillCritCB(cb.lambda = 5)
+
 
 ctrl = setMBOControlInfill(ctrl, crit = infill_crit, opt = "focussearchSavepts", 
                            opt.focussearch.points = 200, opt.focussearch.maxit = 1)
 
-lrn = makeLearner("regr.km", covtype = "powexp", predict.type = "se", optim.method = "gen", 
+lrn = makeLearner("regr.km", covtype = "powexp", predict.type = "se", 
                   control = list(trace = FALSE), config = list(on.par.without.desc = "warn"))
 # ensure numerical stability in km {DiceKriging} cf. github issue and recommendation by Bernd Bischl 
 y = apply(design, 1, obj_fun)
@@ -89,7 +91,7 @@ lrn = setHyperPars(learner = lrn, nugget=Nuggets)
 
 res_mbo = mbo(fun = obj_fun, design = design, control = ctrl, learner = lrn)
 
-ShapleyMBO(res.mbo = res_mbo, iter.interest = 2)
+ShapleyMBO(res.mbo = res_mbo)
 
 #xplxpl(res_mbo)
 
