@@ -2,8 +2,11 @@
 #
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 875f6411c56dfffb4119e7c885eeff8d6e3f8a7b
 number_interventions = 0
 ## BO loop
 for (b in 1:budget) {

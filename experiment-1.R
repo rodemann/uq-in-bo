@@ -27,6 +27,7 @@ source("R/ShapleyMBO.R")
 # first create ground truth by estimating hypersurrogate utility from data
 # simulated_data_x <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_x.csv")
 # simulated_data_pref <- read_csv("C:/Users/Julian Rodemann/Downloads/simulated_data_pref.csv")
+<<<<<<< HEAD
 # save(simulated_data_x, file = "data/simulated_data_x.csv")
 # save(simulated_data_pref, file = "data/simulated_data_pref.csv")
 
@@ -35,7 +36,19 @@ load(file = "data/simulated_data_x.Rds")
 # 
 # simulated_data_x <- read_csv("data/simulated_data_x.csv")
 # simulated_data_pref <- read_csv("data/simulated_data_pref.csv")
+=======
+# 
+# save(simulated_data_pref, file = "data/simulated_data_x.Rds")
+# save(simulated_data_x, file = "data/simulated_data_pref.Rds")
+# 
+# simulated_data_x <- read_csv("data/simulated_data_x.csv")
+# simulated_data_pref <- read_csv("data/simulated_data_pref.csv")
 
+load(file = "data/simulated_data_pref.Rds")
+load(file = "data/simulated_data_x.Rds")
+>>>>>>> 875f6411c56dfffb4119e7c885eeff8d6e3f8a7b
+
+write
 
 # clean redundancies
 simulated_data_pref = simulated_data_pref[,-1]
@@ -171,8 +184,18 @@ lrn = setHyperPars(learner = lrn, nugget=Nuggets)
 ctrl_agent = setMBOControlTermination(ctrl_agent, iters = 1)
 
 
+<<<<<<< HEAD
 # initial setup of agent
 initial_iters_agent = 10
+=======
+
+
+
+
+
+# initial agent model
+initial_iters_agent = 200
+>>>>>>> 875f6411c56dfffb4119e7c885eeff8d6e3f8a7b
 ctrl_agent = makeMBOControl(propose.points = 1L, store.model.at = 1:initial_iters_agent)
 ctrl_agent = setMBOControlTermination(ctrl_agent, iters = initial_iters_agent)
 res_mbo_agent = mbo(fun = obj_fun, design = design_agent, control = ctrl_agent, learner = lrn_agent, show.info = F)
@@ -188,6 +211,10 @@ shapley_ratio_agent = mean_shapley_x1 / mean_shapley_x2
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 875f6411c56dfffb4119e7c885eeff8d6e3f8a7b
 baseline_results = list()
 shapleyBO_results = list()
 baseline_opts = list()
@@ -279,6 +306,9 @@ shapley_opts %>% unlist %>% mean
 
 
 #baseline_results[[10]]
+
+
+
 
 ## possible extensions: different infill crits
 # infill_crit = makeMBOInfillCritUACB(cb.lambda = 5, 
